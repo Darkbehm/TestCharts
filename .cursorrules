@@ -1,0 +1,263 @@
+---
+description: This rule provides comprehensive best practices and coding standards for React Native development, using Redux Toolkit, TypeScript, and the Flux pattern. Expo must not be used. This guide covers code organization, performance, security, testing, and common pitfalls.
+globs: _.js,_.jsx,_.ts,_.tsx
+---
+
+- Use TypeScript for type safety and improved code maintainability.
+- Prefer functional components with hooks over class components for simplicity and reusability.
+- Maintain a clear and consistent project structure for scalability and maintainability.
+- Do not use Expo or any Expo-specific modules.
+
+## 1. Code Organization and Structure:
+
+### 1.1. Directory Structure
+
+Organize your code around features rather than technical concerns. A feature-based directory structure promotes modularity and makes it easier to understand the application's purpose.
+
+src/
+├── app/
+│ ├── components/
+│ │ └── App.tsx
+│ └── App.css
+├── features/
+│ ├── featureName/
+│ │ ├── components/
+│ │ │ ├── FeatureComponent.tsx
+│ │ │ └── FeatureComponent.css
+│ │ ├── FeatureSlice.ts # Redux slice for the feature
+│ │ ├── FeatureSelectors.ts # Selectors for accessing feature state
+│ │ ├── FeatureActions.ts # Actions related to this feature
+│ │ └── api.ts # API calls related to the feature
+│ ├── anotherFeature/
+│ │ └── ...
+├── store.ts # Redux store configuration
+├── index.tsx # Entry point for the React application
+└── ...
+
+### 1.2. File Naming Conventions
+
+- **Components:** Use PascalCase (e.g., `MyComponent.tsx`).
+- **Redux Slice Files:** Use PascalCase and end with `Slice.ts` or `Slice.js` (e.g., `UserSlice.ts`).
+- **Selectors:** `selectors.ts` or `selectors.js` or `FeatureSelectors.ts` to include a feature name prefix
+- **Actions:** `actions.ts` or `actions.js` or `FeatureActions.ts` to include a feature name prefix
+- **Styles:** Use either `ComponentName.module.css` (for CSS Modules) or `ComponentName.css` (for global styles).
+- **Utility Functions:** Use camelCase (e.g., `formatDate.ts`).
+
+- **Module Organization:**
+
+  - Group related components and logic by feature.
+  - Use absolute imports and module aliases (e.g., `@components/Button` instead of relative paths).
+  - Configure aliases in `tsconfig.json`.
+
+- **Component Architecture:**
+
+  - Build small, reusable components with a single responsibility.
+  - Use composition over inheritance.
+  - Do not use Expo or Expo components.
+
+- **Code Splitting Strategies:**
+
+  - Implement lazy loading for screens or components not needed at launch.
+  - Use `React.lazy` and `Suspense`.
+  - Use dynamic imports for conditional modules.
+
+## 2. Common Patterns and Anti-patterns:
+
+- **Design Patterns:**
+
+  - **Hooks:** Use custom hooks for shared logic.
+  - **HOCs:** Use higher-order components for cross-cutting concerns.
+  - **Render Props:** Apply as needed for reusable rendering logic.
+  - **Selectors:** Use selectors to abstract the state shape and compute derived data. Selectors improve performance by memoizing results and prevent components from re-rendering unnecessarily.
+  - **Custom Hooks:** Create custom hooks for accessing Redux state and dispatching actions. This simplifies component logic and promotes code reuse. For example:
+
+    ```typescript
+    import {useDispatch, useSelector} from 'react-redux';
+    import {increment, decrement} from './counterSlice';
+    import {RootState} from './store';
+
+    export const useCounter = () => {
+      const count = useSelector((state: RootState) => state.counter.value);
+      const dispatch = useDispatch();
+
+      const handleIncrement = () => {
+        dispatch(increment());
+      };
+
+      const handleDecrement = () => {
+        dispatch(decrement());
+      };
+
+      return {count, handleIncrement, handleDecrement};
+    };
+    ```
+
+  - **Redux Toolkit:** Utilize Redux Toolkit to simplify Redux setup and reduce boilerplate code. Redux Toolkit provides utilities for creating reducers, actions, and the store.
+
+- **Recommended Approaches:**
+
+  - **State Management:** Use Redux Toolkit exclusively, following Flux pattern. Use `createSlice`, `createAsyncThunk`, and `useAppDispatch/useAppSelector`.
+  - **API Calls:** Use `axios` or `fetch` and abstract logic into a services layer.
+  - **Navigation:** Use React Navigation with native stack. Define stacks and routes in `navigation/`.
+  - **Normalize State:** Structure your state as a normalized data structure, where each piece of data has a unique ID, and relationships between data are represented by IDs. This improves performance and simplifies data management. Use libraries like Normalizr to help with this.
+  - **Immutability:** Treat your state as immutable and use immutable update patterns. This ensures predictable state transitions and prevents unexpected side effects.
+  - **Middleware for Side Effects:** Use Redux middleware (e.g., Redux Thunk, Redux Saga) to handle asynchronous operations and side effects. Avoid performing side effects directly in reducers.
+
+- **Anti-patterns and Code Smells:**
+
+  - Avoid long component files—split into smaller units.
+  - Avoid deep nesting.
+  - Do not mutate state directly.
+  - Avoid unnecessary re-renders by memoizing values and handlers.
+  - Avoid global styles—use component-level styles.
+
+  * **Mutating State Directly:** Never mutate the state directly in reducers. Always create a new copy of the state with the desired changes.
+  * **Performing Side Effects in Reducers:** Reducers should be pure functions and should not perform any side effects (e.g., API calls, logging).
+  * **Storing UI State in Redux:** Avoid storing UI-specific state (e.g., component visibility, form input values) in the Redux store. Store UI state locally in component state.
+  * **Over-reliance on Global State:** Avoid putting everything in the Redux store. Only store data that needs to be accessed by multiple components or across the entire application. Consider React Context or local component state for component-specific data.
+
+- **State Management Best Practices:**
+
+  - **Minimize Global State:** Only store data in the Redux store that needs to be shared across multiple components. For component-specific state, use local component state.
+  - **Use Selectors:** Use selectors to access and transform data from the Redux store. This allows you to abstract the state shape and prevent components from re-rendering unnecessarily.
+  - **Immutable Updates:** Always update state immutably to ensure predictable state transitions and prevent unexpected side effects. Use libraries like Immer to simplify immutable updates.
+  - **Memoize derived state:** Memoize derived state to prevent unnecessary re-renders. Use `useMemo` or `useSelector` to memoize derived state.
+
+- **Error Handling Patterns:**
+
+  - Use `try...catch` for async code.
+  - Implement global error logging.
+  - **Centralized Error Handling:** Implement a centralized error handling mechanism to catch and handle errors consistently throughout the application. Use error boundary components to catch errors in the UI.
+  - **Action Creators for Errors:** Dispatch error actions to the Redux store when errors occur. This allows you to track errors and display error messages in the UI.
+  - **Logging Errors:** Log errors to a central logging service for debugging and monitoring purposes.
+
+## 3. Performance Considerations:
+
+- **Optimization Techniques:**
+
+  - **Memoization:** Use memoization techniques (e.g., `React.memo`, `useMemo`, Reselect) to prevent components from re-rendering unnecessarily.
+  - **Batch Updates:** Batch multiple Redux dispatches into a single update to improve performance. Use `redux-batched-updates` or `unstable_batchedUpdates` from React DOM.
+  - **Virtualization:** Use virtualization techniques (e.g., `react-window`, `react-virtualized`) to efficiently render large lists and tables.
+  - **Code Splitting:** Split the application into smaller chunks to reduce the initial load time.
+
+- **Memory Management:**
+
+  - **Avoid Memory Leaks:** Be mindful of memory leaks, especially in event listeners, timers, and subscriptions. Clean up resources properly when components unmount.
+  - **Use WeakRefs:** Use WeakRefs to hold references to objects without preventing them from being garbage collected.
+
+- **Rendering Optimization:**
+
+  - Avoid inline styles.
+  - Avoid anonymous functions in JSX.
+
+- **Bundle Size Optimization:**
+
+  - Code-split features and screens.
+  - Remove unused dependencies.
+  - Compress assets.
+
+- **Lazy Loading Strategies:**
+
+  - Use `React.lazy` + `Suspense` for non-essential components.
+  - Load assets dynamically when needed.
+
+## 4. Security Best Practices:
+
+- **Common Vulnerabilities:**
+
+  - Sanitize user input.
+  - Use HTTPS only.
+  - Never hardcode credentials.
+
+- **Input Validation:**
+
+  - Validate input both client and server side.
+
+- **Authentication and Authorization:**
+
+  - Use secure auth tokens (e.g., JWT).
+  - Implement RBAC for sensitive screens.
+
+- **Data Protection:**
+
+  - Encrypt sensitive data.
+  - Use secure native storage.
+
+- **Secure API Communication:**
+
+  - Rate limit requests.
+  - Validate all responses.
+
+## 5. Testing Approaches:
+
+- **Unit Testing:**
+
+  - Use Jest.
+  - Mock side effects and dependencies.
+
+- **Integration Testing:**
+
+  - Test data flow between components and Redux.
+
+- **End-to-End Testing:**
+
+  - Use Detox or Appium.
+  - Simulate real user flows.
+
+- **Test Organization:**
+
+  - Co-locate tests with components.
+  - Use consistent test naming.
+
+- **Mocking and Stubbing:**
+
+  - Stub network responses.
+  - Isolate test subjects.
+
+## 6. Common Pitfalls and Gotchas:
+
+- Avoid direct mutation of state.
+
+- Always test on both iOS and Android.
+
+- Don’t over-optimize too early.
+
+- Use the React Native debugger or Flipper.
+
+- Handle:
+
+  - Device orientation changes
+  - No network state
+  - Diverse screen dimensions
+
+- Stay current with React Native versions.
+
+- Ensure device compatibility.
+
+## 7. Tooling and Environment:
+
+- **Development Tools:**
+
+  - Use VS Code with React Native Tools.
+  - Use **React Native CLI only**. Do not use Expo.
+  - Android Studio and Xcode for platform debugging.
+
+- **Build Configuration:**
+
+  - Use Gradle (Android) and CocoaPods (iOS).
+  - Configure `.env` for variants.
+
+- **Linting and Formatting:**
+
+  - Use ESLint + Prettier.
+  - Format code on save.
+
+- **Deployment:**
+
+  - Use App Center or Bitrise for builds.
+  - Automate release builds and OTA delivery if applicable.
+
+- **CI/CD Integration:**
+
+  - Use GitHub Actions, CircleCI, or similar.
+  - Ensure each commit triggers tests and builds.

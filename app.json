@@ -1,4 +1,5 @@
 {
   "name": "TestCharts",
-  "displayName": "TestCharts"
+  "displayName": "TestCharts",
+  "orientation": "portrait"
 }

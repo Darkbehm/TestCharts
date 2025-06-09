@@ -1,97 +1,230 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# TestCharts - Aplicación con Autenticación
 
-# Getting Started
+Esta es una aplicación React Native con un sistema de autenticación completo implementado usando Redux Toolkit, siguiendo las mejores prácticas y el patrón Flux.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 🚀 Características
 
-## Step 1: Start Metro
+- ✅ **Autenticación completa** con API real
+- ✅ **Gestión de estado** con Redux Toolkit
+- ✅ **Persistencia de sesión** con AsyncStorage
+- ✅ **Navegación conditional** basada en estado de autenticación
+- ✅ **Validación de formularios** en tiempo real
+- ✅ **Manejo de errores** completo
+- ✅ **Orientación portrait** bloqueada
+- ✅ **TypeScript** para type safety
+- ✅ **Arquitectura feature-based** escalable
+- ✅ **Accesibilidad** implementada
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## 📱 Credenciales de Prueba
 
-To start the Metro dev server, run the following command from the root of your React Native project:
-
-```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
+```
+Email: postulante@prueba.com
+Password: Aa123456.
 ```
 
-## Step 2: Build and run your app
+## 🏗️ Arquitectura
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+```
+src/
+├── features/
+│   └── auth/
+│       ├── components/
+│       │   └── LoginForm.tsx
+│       ├── screens/
+│       │   └── LoginScreen.tsx
+│       ├── authSlice.ts          # Redux slice
+│       ├── authSelectors.ts      # Selectores Redux
+│       ├── authActions.ts        # Custom hooks
+│       ├── authAPI.ts           # Capa de API
+│       ├── types.ts             # Tipos TypeScript
+│       └── index.ts             # Barrel exports
+├── screens/
+│   └── HomeScreen.tsx
+└── store/
+    └── store.ts                 # Configuración Redux store
+```
 
-### Android
+## 🛠️ Tecnologías Utilizadas
 
-```sh
-# Using npm
+- **React Native CLI** (NO Expo)
+- **Redux Toolkit** para gestión de estado
+- **React Navigation** para navegación
+- **AsyncStorage** para persistencia
+- **Axios** para peticiones HTTP
+- **TypeScript** para type safety
+
+## 📋 Instalación y Configuración
+
+### Prerequisitos
+
+- Node.js >= 18
+- React Native CLI
+- Android Studio / Xcode configurado
+
+### Pasos de instalación
+
+1. **Clonar e instalar dependencias:**
+
+```bash
+cd TestCharts
+npm install
+```
+
+2. **Instalar dependencias iOS (solo macOS):**
+
+```bash
+cd ios && pod install && cd ..
+```
+
+3. **Iniciar Metro Bundler:**
+
+```bash
+npm start
+```
+
+4. **Ejecutar en simulador:**
+
+```bash
+# Android
 npm run android
 
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+# iOS (solo macOS)
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## 🔐 Flujo de Autenticación
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+1. **Pantalla Login** - Primera pantalla por defecto
+2. **Validación** - Validación en tiempo real de email y contraseña
+3. **API Call** - Autenticación contra `https://qa-api.habitsapi.com/login`
+4. **Persistencia** - Token guardado en AsyncStorage
+5. **Navegación** - Redirect a HomeScreen usando `navigation.replace()`
+6. **Logout** - Limpia token y vuelve a Login
 
-## Step 3: Modify your app
+## 🔧 API Integration
 
-Now that you have successfully run the app, let's make changes!
+La aplicación se integra con la API real:
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+- **Endpoint:** `https://qa-api.habitsapi.com/login`
+- **Método:** POST
+- **Body:** `{"mail": "email", "pass": "password"}`
+- **Respuesta:** Objeto completo con token, usuario y datos de empresa
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+## ⚙️ Configuración de Orientación
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+La aplicación está configurada para funcionar **solo en orientación portrait**:
 
-## Congratulations! :tada:
+- **iOS:** Configurado en `Info.plist`
+- **Android:** Configurado en `AndroidManifest.xml`
+- **React Navigation:** Orientación forzada en opciones
 
-You've successfully run and modified your React Native App. :partying_face:
+## 🎯 Características Técnicas
 
-### Now what?
+### Redux Toolkit Implementation
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+- `createSlice` para reducers y actions
+- `createAsyncThunk` para operaciones asíncronas
+- `createSelector` para selectores memoizados
+- Custom hooks para abstraer lógica Redux
 
-# Troubleshooting
+### Error Handling
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+- Manejo de errores de red
+- Validación de formularios
+- Mensajes de error específicos
+- Estados de loading apropriados
 
-# Learn More
+### TypeScript Integration
 
-To learn more about React Native, take a look at the following resources:
+- Tipos completos para API responses
+- Interfaces para props y state
+- Typed Redux hooks
+- Type safety en toda la aplicación
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+## 🚦 Estados de la Aplicación
+
+La aplicación maneja los siguientes estados principales:
+
+```typescript
+interface AuthState {
+  isAuthenticated: boolean;
+  token: string | null;
+  user: AuthUser | null;
+  isLoading: boolean;
+  error: string | null;
+}
+```
+
+## 📱 Navegación
+
+```typescript
+type RootStackParamList = {
+  Login: undefined;
+  Home: undefined;
+};
+```
+
+- **Login Screen:** Pantalla inicial cuando no hay sesión
+- **Home Screen:** Pantalla principal después de autenticarse
+- **Navigation Guard:** Previene navegación no autorizada
+
+## 🔍 Testing
+
+Para probar la aplicación:
+
+1. Ejecuta la aplicación en simulador
+2. Usa las credenciales de prueba
+3. Verifica la navegación automática
+4. Prueba el logout y vuelta a login
+5. Cierra y reabre la app para verificar persistencia
+
+## 🐛 Troubleshooting
+
+### Problemas comunes:
+
+1. **Metro bundler no inicia:**
+
+```bash
+npx react-native start --reset-cache
+```
+
+2. **Problemas con AsyncStorage:**
+
+```bash
+npx react-native unlink @react-native-async-storage/async-storage
+npx react-native link @react-native-async-storage/async-storage
+```
+
+3. **Limpiar cache completo:**
+
+```bash
+npm run android -- --reset-cache
+# o
+npm run ios -- --reset-cache
+```
+
+## 📚 Estructura de Carpetas Detallada
+
+```
+TestCharts/
+├── src/
+│   ├── features/auth/          # Feature de autenticación
+│   ├── screens/               # Pantallas generales
+│   └── store/                 # Configuración Redux
+├── android/                   # Configuración Android
+├── ios/                      # Configuración iOS
+└── package.json
+```
+
+## 🎨 UI/UX Features
+
+- Diseño moderno y limpio
+- Feedback visual para estados de loading
+- Manejo de errores visual
+- Accesibilidad completa
+- KeyboardAvoidingView para mejor UX
+- Animaciones suaves de transición
+
+---
+
+**Desarrollado siguiendo las mejores prácticas de React Native y Redux Toolkit** 🚀
