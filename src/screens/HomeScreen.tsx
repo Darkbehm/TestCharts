@@ -6,65 +6,76 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
+  ScrollView,
 } from 'react-native';
-import { LineChart } from "react-native-gifted-charts";
 import {useAuth} from '../features/auth/authActions';
+import {DateSelector, GlucoseChart} from '../features/glucose';
 
 export const HomeScreen: React.FC = () => {
+  console.log('🏠 HomeScreen component rendered');
   const {user, logout} = useAuth();
+  console.log('👤 User state:', user ? 'logged in' : 'not logged in');
 
   const handleLogout = () => {
     logout();
   };
 
-  const data = [{value: 15}, {value: 30}, {value: 26}, {value: 40}];
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <View style={styles.content}>
-        <View style={styles.welcomeContainer}>
-          <Text style={styles.title}>¡Bienvenido!</Text>
-          <Text style={styles.subtitle}>Has iniciado sesión correctamente</Text>
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.content}>
+          <View style={styles.welcomeContainer}>
+            <Text style={styles.title}>¡Bienvenido!</Text>
+            <Text style={styles.subtitle}>Monitoreo de Glucosa</Text>
 
-          <LineChart data={data}/>
+            {/* Date Selector */}
+            <DateSelector />
 
-          {user && (
-            <View style={styles.userInfo}>
-              <Text style={styles.userInfoTitle}>Información del usuario:</Text>
-              <Text style={styles.userInfoText}>
-                <Text style={styles.label}>Email: </Text>
-                {user.email}
-              </Text>
-              <Text style={styles.userInfoText}>
-                <Text style={styles.label}>Usuario: </Text>
-                {user.user}
-              </Text>
-              <Text style={styles.userInfoText}>
-                <Text style={styles.label}>ID: </Text>
-                {user.id}
-              </Text>
-              <Text style={styles.userInfoText}>
-                <Text style={styles.label}>Empresa: </Text>
-                {user.company.name}
-              </Text>
-              <Text style={styles.userInfoText}>
-                <Text style={styles.label}>Survey Iniciado: </Text>
-                {user.surveyStart ? 'Sí' : 'No'}
-              </Text>
-            </View>
-          )}
+            {/* Glucose Chart */}
+            <GlucoseChart />
+
+            {user && (
+              <View style={styles.userInfo}>
+                <Text style={styles.userInfoTitle}>
+                  Información del usuario:
+                </Text>
+                <Text style={styles.userInfoText}>
+                  <Text style={styles.label}>Email: </Text>
+                  {user.email}
+                </Text>
+                <Text style={styles.userInfoText}>
+                  <Text style={styles.label}>Usuario: </Text>
+                  {user.user}
+                </Text>
+                <Text style={styles.userInfoText}>
+                  <Text style={styles.label}>ID: </Text>
+                  {user.id}
+                </Text>
+                <Text style={styles.userInfoText}>
+                  <Text style={styles.label}>Empresa: </Text>
+                  {user.company.name}
+                </Text>
+                <Text style={styles.userInfoText}>
+                  <Text style={styles.label}>Survey Iniciado: </Text>
+                  {user.surveyStart ? 'Sí' : 'No'}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={handleLogout}
+            accessibilityLabel="Cerrar sesión"
+            accessibilityHint="Toca para cerrar tu sesión actual"
+            accessibilityRole="button">
+            <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={handleLogout}
-          accessibilityLabel="Cerrar sesión"
-          accessibilityHint="Toca para cerrar tu sesión actual"
-          accessibilityRole="button">
-          <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
-        </TouchableOpacity>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -72,40 +83,45 @@ export const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F3F4F6',
+  },
+  scrollContainer: {
+    flex: 1,
   },
   content: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingVertical: 40,
-    justifyContent: 'space-between',
+    paddingVertical: 20,
   },
   welcomeContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingBottom: 20,
   },
   title: {
     fontSize: 32,
     fontWeight: '700',
     color: '#1F2937',
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   subtitle: {
     fontSize: 18,
     color: '#6B7280',
     textAlign: 'center',
-    marginBottom: 40,
+    marginBottom: 24,
   },
   userInfo: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFFFFF',
     padding: 20,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    width: '100%',
-    maxWidth: 300,
+    marginTop: 16,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   userInfoTitle: {
     fontSize: 16,

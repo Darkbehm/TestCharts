@@ -1,19 +1,170 @@
-# TestCharts - Aplicación con Autenticación
+# TestCharts - Aplicación React Native con Autenticación y Gráficos de Glucosa
 
-Esta es una aplicación React Native con un sistema de autenticación completo implementado usando Redux Toolkit, siguiendo las mejores prácticas y el patrón Flux.
+Esta aplicación demuestra una implementación completa de React Native siguiendo las mejores prácticas de arquitectura escalable, gestión de estado con Redux Toolkit, y integración de APIs reales.
 
-## 🚀 Características
+## 🎯 Decisiones de Arquitectura y Razonamiento
 
-- ✅ **Autenticación completa** con API real
-- ✅ **Gestión de estado** con Redux Toolkit
-- ✅ **Persistencia de sesión** con AsyncStorage
-- ✅ **Navegación conditional** basada en estado de autenticación
-- ✅ **Validación de formularios** en tiempo real
-- ✅ **Manejo de errores** completo
-- ✅ **Orientación portrait** bloqueada
-- ✅ **TypeScript** para type safety
-- ✅ **Arquitectura feature-based** escalable
-- ✅ **Accesibilidad** implementada
+### 1. **Arquitectura Feature-Based**
+
+**Decisión**: Organización del código por características/features en lugar de por tipo de archivo.
+
+```
+src/
+├── features/
+│   ├── auth/           # Todo lo relacionado con autenticación
+│   └── glucose/        # Todo lo relacionado con gráficos de glucosa
+├── screens/           # Pantallas compartidas
+└── store/            # Configuración Redux global
+```
+
+**Razonamiento**:
+
+- **escalabilidad**: Fácil agregar nuevas características sin reestructurar
+- **Mantenibilidad**: Lógica relacionada agrupada en un solo lugar
+- **Reutilización**: Componentes y lógica encapsulados por dominio
+- **Team scalability**: Diferentes desarrolladores pueden trabajar en features independientes
+
+### 2. **Gestión de Autenticación**
+
+**Decisión**: Persistencia con AsyncStorage + navegación condicional.
+
+**Razonamiento**:
+
+- **UX Seamless**: Usuario no necesita re-loguearse en cada apertura
+- **Security**: Token almacenado localmente pero con expiración
+- **Performance**: Carga inicial rápida con verificación de token existente
+- **Navegación inteligente**: `navigation.replace()` para evitar stack de login
+
+#### Flujo implementado:
+
+1. App inicia → Verifica token en AsyncStorage
+2. Token válido → Navega directamente a Home
+3. Token inválido/ausente → Muestra pantalla de Login
+4. Login exitoso → Guarda token y navega con `replace()`
+
+### 3. **Manejo de Errores Robusto**
+
+**Decisión**: Sistema de manejo de errores específico para la API utilizada.
+
+**Razonamiento**:
+
+- **UX Superior**: Mensajes específicos en lugar de errores genéricos
+- **Preservación de datos**: No se resetea el formulario en errores
+- **Feedback inmediato**: Clear de errores al comenzar a escribir
+- **Logging detallado**: Para debugging efectivo en desarrollo
+
+#### Estructura de error manejada:
+
+```json
+{
+  "error": {
+    "title": "Credenciales inválidas",
+    "message": "Usuario o contraseña incorrectos"
+  }
+}
+```
+
+### 4. **Feature de Gráficos de Glucosa**
+
+**Decisión**: react-native-gifted-charts para visualización de datos.
+
+**Razonamiento**:
+
+- **Performance nativa**: Renderizado optimizado para móviles
+- **Customización**: Control total sobre apariencia y comportamiento
+- **Interactividad**: Selección de fechas y navegación temporal
+- **Datos estadísticos**: Cálculo automático de min/max/promedio
+- **Detección inteligente**: Identificación de picos y bajas de glucosa
+
+#### Características implementadas:
+
+- Selector de fecha nativo (iOS/Android)
+- Navegación temporal (anterior/siguiente día)
+- Gráfico interactivo con área de relleno
+- Estadísticas en tiempo real
+- Estados de loading y error
+
+#### Flujo de Datos de Glucosa:
+
+**1. Descarga de Datos (API):**
+
+```typescript
+// Endpoint: POST /api/glucose/getByUserAndDateRange?userId={dynamic_user_id}
+{
+  data: [],          // Lecturas normales de glucosa
+  spikes: [],        // Picos altos (>140mg/dL)
+  isPickLow: [],     // Valores bajos (<70mg/dL)
+  score: [],         // Métricas adicionales
+  maxGlucose: number
+}
+```
+
+**2. Procesamiento Inteligente:**
+
+- **Combinación**: Fusiona los 3 tipos de datos en uno solo
+- **Filtrado Temporal**: 6h/12h/24h desde AHORA, o fecha específica
+- **Downsampling Inteligente**: Reduce a 20 puntos preservando picos médicos importantes
+- **Colorización**: Rojo (<70), Cyan (71-140), Amarillo (>140)
+
+**3. Optimizaciones de Performance:**
+
+- Selectores memoizados para evitar re-cálculos
+- Límite de 100 puntos iniciales + reducción a 20 finales
+- Procesamiento lazy solo cuando cambian datos
+- Preservación automática de spikes y valores bajos críticos
+
+**4. Algoritmo de Downsampling:**
+
+- Calcula promedio y desviación estándar
+- Identifica puntos críticos (>1.5 desviaciones estándar)
+- Preserva automáticamente todos los `spikes` y `isPickLow`
+- Muestrea uniformemente el resto de datos
+- Garantiza información médicamente relevante
+
+### 5. **Configuración de Orientación**
+
+**Decisión**: Aplicación bloqueada en orientación portrait únicamente.
+
+**Razonamiento**:
+
+- **UX Consistente**: Diseño optimizado para uso vertical
+- **Simplicidad**: Menos casos de prueba y complejidad de layout
+- **Mejor para formularios**: Especialmente login y entry de datos
+- **Configuración nativa**: Aplicado tanto en iOS como Android
+
+### 6. **Integración de API Real**
+
+**Decisión**: Integración con API de producción desde el desarrollo inicial.
+
+**Razonamiento**:
+
+- **Realismo**: Comportamiento idéntico al ambiente de producción
+- **Error handling real**: Manejo de casos edge reales de la API
+- **Performance testing**: Identificación temprana de issues de latencia
+- **Security**: Implementación correcta de headers y autenticación
+
+#### API Endpoints utilizados:
+
+- `POST /login` - Autenticación
+- `POST /api/glucose/getByUserAndDateRange` - Datos de glucosa
+
+### 7. **Estructura de Dependencias**
+
+**Decisión**: Dependencias mínimas pero bien seleccionadas.
+
+#### Core Dependencies:
+
+- `@reduxjs/toolkit` - Estado global
+- `@react-navigation/native-stack` - Navegación
+- `@react-native-async-storage/async-storage` - Persistencia
+- `axios` - HTTP client
+- `react-native-gifted-charts` - Visualización de datos
+
+**Razonamiento**:
+
+- **Bundle size**: Mantener el APK/IPA lo más pequeño posible
+- **Mantenimiento**: Menos dependencias = menos vulnerabilidades
+- **Performance**: Cada librería seleccionada por su eficiencia específica
 
 ## 📱 Credenciales de Prueba
 
@@ -22,209 +173,39 @@ Email: postulante@prueba.com
 Password: Aa123456.
 ```
 
-## 🏗️ Arquitectura
-
-```
-src/
-├── features/
-│   └── auth/
-│       ├── components/
-│       │   └── LoginForm.tsx
-│       ├── screens/
-│       │   └── LoginScreen.tsx
-│       ├── authSlice.ts          # Redux slice
-│       ├── authSelectors.ts      # Selectores Redux
-│       ├── authActions.ts        # Custom hooks
-│       ├── authAPI.ts           # Capa de API
-│       ├── types.ts             # Tipos TypeScript
-│       └── index.ts             # Barrel exports
-├── screens/
-│   └── HomeScreen.tsx
-└── store/
-    └── store.ts                 # Configuración Redux store
-```
-
-## 🛠️ Tecnologías Utilizadas
-
-- **React Native CLI** (NO Expo)
-- **Redux Toolkit** para gestión de estado
-- **React Navigation** para navegación
-- **AsyncStorage** para persistencia
-- **Axios** para peticiones HTTP
-- **TypeScript** para type safety
-
-## 📋 Instalación y Configuración
-
-### Prerequisitos
-
-- Node.js >= 18
-- React Native CLI
-- Android Studio / Xcode configurado
-
-### Pasos de instalación
-
-1. **Clonar e instalar dependencias:**
+## 🚀 Instalación y Ejecución
 
 ```bash
-cd TestCharts
+# Instalar dependencias
 npm install
-```
-
-2. **Instalar dependencias iOS (solo macOS):**
-
-```bash
-cd ios && pod install && cd ..
-```
-
-3. **Iniciar Metro Bundler:**
-
-```bash
-npm start
-```
-
-4. **Ejecutar en simulador:**
-
-```bash
-# Android
-npm run android
 
 # iOS (solo macOS)
-npm run ios
+cd ios && pod install && cd ..
+
+# Ejecutar
+npm run android  # o npm run ios
 ```
 
-## 🔐 Flujo de Autenticación
+## 🔄 Flujo de Desarrollo
 
-1. **Pantalla Login** - Primera pantalla por defecto
-2. **Validación** - Validación en tiempo real de email y contraseña
-3. **API Call** - Autenticación contra `https://qa-api.habitsapi.com/login`
-4. **Persistencia** - Token guardado en AsyncStorage
-5. **Navegación** - Redirect a HomeScreen usando `navigation.replace()`
-6. **Logout** - Limpia token y vuelve a Login
+El proyecto sigue un flujo de desarrollo estructurado:
 
-## 🔧 API Integration
+1. **Feature development** en carpetas independientes
+2. **Testing** de integración con APIs reales
+3. **Error handling** específico por caso de uso
+4. **Performance optimization** mediante selectors y memoización
+5. **Type safety** con TypeScript estricto
 
-La aplicación se integra con la API real:
+## 🏗️ Escalabilidad Futura
 
-- **Endpoint:** `https://qa-api.habitsapi.com/login`
-- **Método:** POST
-- **Body:** `{"mail": "email", "pass": "password"}`
-- **Respuesta:** Objeto completo con token, usuario y datos de empresa
+La arquitectura permite:
 
-## ⚙️ Configuración de Orientación
-
-La aplicación está configurada para funcionar **solo en orientación portrait**:
-
-- **iOS:** Configurado en `Info.plist`
-- **Android:** Configurado en `AndroidManifest.xml`
-- **React Navigation:** Orientación forzada en opciones
-
-## 🎯 Características Técnicas
-
-### Redux Toolkit Implementation
-
-- `createSlice` para reducers y actions
-- `createAsyncThunk` para operaciones asíncronas
-- `createSelector` para selectores memoizados
-- Custom hooks para abstraer lógica Redux
-
-### Error Handling
-
-- Manejo de errores de red
-- Validación de formularios
-- Mensajes de error específicos
-- Estados de loading apropriados
-
-### TypeScript Integration
-
-- Tipos completos para API responses
-- Interfaces para props y state
-- Typed Redux hooks
-- Type safety en toda la aplicación
-
-## 🚦 Estados de la Aplicación
-
-La aplicación maneja los siguientes estados principales:
-
-```typescript
-interface AuthState {
-  isAuthenticated: boolean;
-  token: string | null;
-  user: AuthUser | null;
-  isLoading: boolean;
-  error: string | null;
-}
-```
-
-## 📱 Navegación
-
-```typescript
-type RootStackParamList = {
-  Login: undefined;
-  Home: undefined;
-};
-```
-
-- **Login Screen:** Pantalla inicial cuando no hay sesión
-- **Home Screen:** Pantalla principal después de autenticarse
-- **Navigation Guard:** Previene navegación no autorizada
-
-## 🔍 Testing
-
-Para probar la aplicación:
-
-1. Ejecuta la aplicación en simulador
-2. Usa las credenciales de prueba
-3. Verifica la navegación automática
-4. Prueba el logout y vuelta a login
-5. Cierra y reabre la app para verificar persistencia
-
-## 🐛 Troubleshooting
-
-### Problemas comunes:
-
-1. **Metro bundler no inicia:**
-
-```bash
-npx react-native start --reset-cache
-```
-
-2. **Problemas con AsyncStorage:**
-
-```bash
-npx react-native unlink @react-native-async-storage/async-storage
-npx react-native link @react-native-async-storage/async-storage
-```
-
-3. **Limpiar cache completo:**
-
-```bash
-npm run android -- --reset-cache
-# o
-npm run ios -- --reset-cache
-```
-
-## 📚 Estructura de Carpetas Detallada
-
-```
-TestCharts/
-├── src/
-│   ├── features/auth/          # Feature de autenticación
-│   ├── screens/               # Pantallas generales
-│   └── store/                 # Configuración Redux
-├── android/                   # Configuración Android
-├── ios/                      # Configuración iOS
-└── package.json
-```
-
-## 🎨 UI/UX Features
-
-- Diseño moderno y limpio
-- Feedback visual para estados de loading
-- Manejo de errores visual
-- Accesibilidad completa
-- KeyboardAvoidingView para mejor UX
-- Animaciones suaves de transición
+- **Nuevas features** sin modificar código existente
+- **Team scaling** con ownership claro por feature
+- **Performance** con lazy loading y code splitting
+- **Testing** con separación clara de responsabilidades
+- **Maintenance** con bajo acoplamiento entre componentes
 
 ---
 
-**Desarrollado siguiendo las mejores prácticas de React Native y Redux Toolkit** 🚀
+**Desarrollado siguiendo React Native CLI, Redux Toolkit, y principios de Clean Architecture** 🚀
