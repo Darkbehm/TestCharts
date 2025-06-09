@@ -18,7 +18,8 @@ interface LoginFormProps {
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({onLoginSuccess}) => {
-  const {login, isLoading, error, errorTitle, errorMessage, clearError} = useAuth();
+  const {login, isLoading, error, errorTitle, errorMessage, clearError} =
+    useAuth();
 
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
@@ -168,9 +169,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({onLoginSuccess}) => {
         {/* Global Error Message */}
         {error && (
           <View style={styles.globalErrorContainer}>
-            {errorTitle && (
-              <Text style={styles.errorTitle}>{errorTitle}</Text>
-            )}
+            {errorTitle && <Text style={styles.errorTitle}>{errorTitle}</Text>}
             {errorMessage && (
               <Text style={styles.globalErrorText}>{errorMessage}</Text>
             )}

@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
+import { LineChart } from "react-native-gifted-charts";
 import {useAuth} from '../features/auth/authActions';
 
 export const HomeScreen: React.FC = () => {
@@ -16,6 +17,8 @@ export const HomeScreen: React.FC = () => {
     logout();
   };
 
+  const data = [{value: 15}, {value: 30}, {value: 26}, {value: 40}];
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -23,6 +26,8 @@ export const HomeScreen: React.FC = () => {
         <View style={styles.welcomeContainer}>
           <Text style={styles.title}>¡Bienvenido!</Text>
           <Text style={styles.subtitle}>Has iniciado sesión correctamente</Text>
+
+          <LineChart data={data}/>
 
           {user && (
             <View style={styles.userInfo}>
