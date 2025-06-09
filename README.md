@@ -173,6 +173,38 @@ Email: postulante@prueba.com
 Password: Aa123456.
 ```
 
+## 📦 APK de Instalación Directa
+
+### Descarga la aplicación compilada
+
+El APK de la aplicación está disponible en el repositorio para instalación directa en dispositivos Android:
+
+- **Archivo**: [`releases/TestCharts-v1.0.0.apk`](./releases/TestCharts-v1.0.0.apk)
+- **Tamaño**: ~102MB
+- **Versión**: 1.0.0
+- **Tipo**: Release (optimizado para producción)
+
+### Instalación en Android
+
+#### Método 1: Instalación directa
+1. Descarga el archivo `TestCharts-v1.0.0.apk` desde el repositorio
+2. En tu dispositivo Android, ve a **Configuración > Seguridad**
+3. Habilita **Fuentes desconocidas** o **Instalar aplicaciones desconocidas**
+4. Abre el archivo APK descargado y sigue las instrucciones de instalación
+
+#### Método 2: Usando ADB (para desarrolladores)
+```bash
+# Conecta tu dispositivo Android y habilita la depuración USB
+adb install releases/TestCharts-v1.0.0.apk
+```
+
+### Características de la aplicación
+- ✅ Autenticación de usuario
+- ✅ Gráficos interactivos de glucosa
+- ✅ Selector de fechas nativo
+- ✅ Estadísticas en tiempo real
+- ✅ Interfaz optimizada para móvil
+
 ## 🚀 Instalación y Ejecución
 
 ```bash
